@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Fabric.js TextCurve (vector) Example</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js"></script>
+    <script src="./fabricjs-textcurve-object-vector.js"></script>
+    <style>
+      canvas {
+        border: 1px solid #ccc;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="c" width="800" height="600"></canvas>
+
+    <script>
+      const canvas = new fabric.Canvas("c");
+
+      const curvedText = new fabric.TextCurve("Curved Text!", {
+        left: 300,
+        top: 200,
+        fill: "navy",
+        fontSize: 40,
+        fontFamily: "Arial",
+        diameter: 35,
+        kerning: 20,
+        flipped: false,
+        startAngle: 0,
+        editable: true,
+        objectCaching: false, // Add this
+        hasControls: true, // Ensure controls work properly
+      });
+
+      canvas.add(curvedText);
+      canvas.setActiveObject(curvedText);
+    </script>
+  </body>
+</html>
