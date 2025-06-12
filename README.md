@@ -1,36 +1,39 @@
-# fabricjs-textcurve-object
+# **fabricjs-textcurve-object**
+============
+**`fabricjs-textcurve-object`** is a custom [Fabric.js](http://fabricjs.com/) object that extends `fabric.IText` to render **single-line text along a circular arc**. It supports both **bitmap** and **vector rendering**, offering flexibility between performance and visual fidelity.
 
-The fabricjs-textcurve-object is a custom Fabric.js object that extends fabric.IText to render single-line text along a circular arc. It supports both bitmap and vector rendering, offering flexibility between performance and visual fidelity.
+This object maintains full **interactive editing capabilities**, just like standard `IText`, including:
 
-This object maintains full interactive editing capabilities, just like standard IText, including:
+- Cursor movement  
+- Text selection  
+- Keyboard editing
 
-Cursor movement
+While editing, the text behaves like a normal straight-line `IText` object. During rendering (when not in editing mode), the text follows a circular path based on the configured properties.
 
-Text selection
+---
 
-Keyboard editing
+## 🔑 Key Features
 
-While editing, the text behaves like a normal straight-line IText object. During rendering (when not in editing mode), the text follows a circular path based on the configured properties.
+- Curved text rendering on a circular arc  
+- Editable like regular `IText`  
+- Supports both **vector** and **bitmap** rendering  
 
-Key Features:
-Curved Text Rendering on a circular arc
+---
 
-Editable like regular IText
+## ⚙️ Configurable Arc Properties (with Defaults)
 
-Supports both vector and bitmap rendering
+| Property     | Default   | Description                                                                 |
+|--------------|-----------|-----------------------------------------------------------------------------|
+| `diameter`   | `0`       | Diameter of the circular arc the text follows                               |
+| `startAngle` | `180`     | Starting angle (in degrees) for text along the arc                          |
+| `kerning`    | `0`       | Extra spacing between characters                                            |
+| `flipped`    | `false`   | If `true`, text curves inward (inside circle); otherwise, it curves outward |
 
-Configurable Arc Properties (with Defaults):
-diameter (default: 0) – The diameter of the circular arc the text follows.
+---
 
-startAngle (default: 180) – The angle (in degrees) at which the text starts along the arc.
+## 💡 Example Usage
 
-kerning (default: 0) – Additional spacing between characters, useful for fine-tuning character distribution along the arc.
-
-flipped (default: false) – When true, renders the text inside the circle (inward-facing); otherwise, it renders outward-facing.
-
-This makes it ideal for creating curved text elements such as labels, seals, dials, and decorative text paths with interactive editing support.
-
-Example Usage:
+```js
 const curvedText = new fabric.TextCurve("Hello, world!", {
   left: 100,
   top: 100,
@@ -42,4 +45,5 @@ const curvedText = new fabric.TextCurve("Hello, world!", {
 });
 canvas.add(curvedText);
 
-note: The bounding box for vector rendering considers the curve as full circle even for an arc.
+
+> note: The bounding box for vector rendering considers the curve as full circle even for an arc.
