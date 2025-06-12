@@ -1,5 +1,5 @@
 # **fabricjs-textcurve-object**
-============
+
 **`fabricjs-textcurve-object`** is a custom [Fabric.js](http://fabricjs.com/) object that extends `fabric.IText` to render **single-line text along a circular arc**. It supports both **bitmap** and **vector rendering**, offering flexibility between performance and visual fidelity.
 
 This object maintains full **interactive editing capabilities**, just like standard `IText`, including:
@@ -44,6 +44,8 @@ const curvedText = new fabric.TextCurve("Hello, world!", {
   fill: "#000"
 });
 canvas.add(curvedText);
+```
 
+### 📌 Note:
 
-> note: The bounding box for vector rendering considers the curve as full circle even for an arc.
+> The bounding box for vector rendering is calculated as if the text forms a full circle, even when only a partial arc is rendered. Suggestions or contributions to improve this behavior are welcome.
