@@ -1,3 +1,8 @@
+/*!
+ * textcurve object for fabric.js
+ * Modified by Kenneth D'silva (Modracx), Copyright (c) June 2025
+ * Licensed under the MIT License – https://opensource.org/licenses/MIT
+ */
 ; (function (fabric) {
     fabric.TextCurve = fabric.util.createClass(fabric.IText, {
         type: "text-curve",

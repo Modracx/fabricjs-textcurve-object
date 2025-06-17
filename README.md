@@ -12,7 +12,7 @@ While editing, the text behaves like a normal straight-line `IText` object. Duri
 
 ---
 
-## 🔑 Key Features
+## Key Features
 
 - Curved text rendering on a circular arc  
 - Editable like regular `IText`  
@@ -20,7 +20,7 @@ While editing, the text behaves like a normal straight-line `IText` object. Duri
 
 ---
 
-## ⚙️ Configurable Arc Properties (with Defaults)
+## Configurable Arc Properties (with Defaults)
 
 | Property     | Default   | Description                                                                 |
 |--------------|-----------|-----------------------------------------------------------------------------|
@@ -31,7 +31,7 @@ While editing, the text behaves like a normal straight-line `IText` object. Duri
 
 ---
 
-## 💡 Example Usage
+## Example Usage
 
 ```js
 const curvedText = new fabric.TextCurve("Hello, world!", {
@@ -46,6 +46,6 @@ const curvedText = new fabric.TextCurve("Hello, world!", {
 canvas.add(curvedText);
 ```
 
-### 📌 Note:
+### Note:
 
 > The bounding box for vector rendering is calculated as if the text forms a full circle, even when only a partial arc is rendered. Suggestions or contributions to improve this behavior are welcome.
