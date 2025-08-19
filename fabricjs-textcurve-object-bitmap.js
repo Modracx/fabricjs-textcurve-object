@@ -26,8 +26,8 @@
             this.flipped = options.flipped ?? false;
             this.startAngle = options.startAngle ?? 180;
 
-            this.originX = "left";
-            this.originY = "top";
+            this.originX = options.originX ?? "left";
+            this.originY = options.originY ?? "top";
             this._updateCurve();
         },
 

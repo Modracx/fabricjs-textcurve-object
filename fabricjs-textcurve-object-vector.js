@@ -26,8 +26,8 @@
             this.flipped = options.flipped ?? false;
             this.startAngle = options.startAngle ?? 180;
 
-            this.originX = "left";
-            this.originY = "top";
+            this.originX = options.originX ?? "left";
+            this.originY = options.originY ?? "top";
             this._updateBoundingBox();
         },
 
@@ -94,7 +94,7 @@
                 (Math.max(-100, Math.min(100, diameter)) / 100) * 2 * Math.PI;
             const radius = Math.abs(totalWidth / angleSpan) || fontSize * 2;
 
-            const width = 2 * (radius + fontSize); // Add padding to avoid clipping
+            const width = 2 * (radius + fontSize);
             const height = 2 * (radius + fontSize);
 
             this.set({
@@ -129,7 +129,6 @@
             ctx.textBaseline = "middle";
             ctx.fillStyle = this.fill;
 
-            // Move origin to center of bounding box
             ctx.translate(-this.width / 2, -this.height / 2);
             ctx.translate(this.width / 2, this.height / 2);
             ctx.rotate((startAngleDeg * Math.PI) / 180);
