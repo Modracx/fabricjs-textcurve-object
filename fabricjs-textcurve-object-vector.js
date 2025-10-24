@@ -28,7 +28,7 @@
 
             this.originX = options.originX ?? "left";
             this.originY = options.originY ?? "top";
-            this._updateBoundingBox();
+            this._updateCurve();
         },
 
         set: function (key, value) {
@@ -44,7 +44,7 @@
                 ].includes(key) &&
                 !this.isEditing
             ) {
-                this._updateBoundingBox();
+                this._updateCurve();
             }
             return changed;
         },
@@ -57,7 +57,7 @@
 
         exitEditing: function () {
             this.callSuper("exitEditing");
-            this._updateBoundingBox();
+            this._updateCurve();
             this.setCoords();
             this.canvas?.requestRenderAll();
         },
@@ -76,7 +76,7 @@
             this.set({ width: w, height: h });
         },
 
-        _updateBoundingBox: function () {
+        _updateCurve: function () {
             const text = this.text;
             const fontSize = this.fontSize;
             const diameter = this.diameter;

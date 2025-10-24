@@ -6,16 +6,149 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js"></script>
     <script src="./fabricjs-textcurve-object-bitmap.js"></script>
     <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background-color: #f5f7fa;
+        color: #333;
+      }
+
       canvas {
         border: 1px solid #ccc;
+        margin-top: 20px;
+      }
+
+      .controls-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 20px;
+        margin-top: 30px;
+        max-width: 900px;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+      }
+
+      .form-group {
+        display: flex;
+        flex-direction: column;
+        min-width: 150px;
+      }
+
+      .form-group label {
+        margin-bottom: 6px;
+        font-size: 14px;
+        font-weight: 500;
+      }
+
+      .form-group input,
+      .form-group select {
+        padding: 6px 10px;
+        font-size: 14px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        transition: border 0.2s;
+      }
+
+      .form-group input:focus,
+      .form-group select:focus {
+        border-color: #007bff;
+        outline: none;
+      }
+
+      #update-text {
+        padding: 10px 20px;
+        font-size: 16px;
+        font-weight: bold;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background-color 0.2s ease-in-out;
+        margin-top: 10px;
+      }
+
+      #update-text:hover {
+        background-color: #0056b3;
+      }
+
+      @media (max-width: 768px) {
+        .controls-container {
+          flex-direction: column;
+          align-items: center;
+        }
       }
     </style>
   </head>
   <body>
     <canvas id="c" width="800" height="600"></canvas>
 
-    <script>
+    <div class="controls-container">
+      <div class="form-group">
+        <label for="text-input">Text</label>
+        <input type="text" id="text-input" value="Curved Text!" />
+      </div>
 
+      <div class="form-group">
+        <label for="fill-input">Fill Color</label>
+        <input type="color" id="fill-input" value="#000080" />
+      </div>
+
+      <div class="form-group">
+        <label for="font-size-input">Font Size</label>
+        <input type="number" id="font-size-input" value="40" min="1" />
+      </div>
+
+      <div class="form-group">
+        <label for="font-family-input">Font Family</label>
+        <select id="font-family-input">
+          <option value="Arial">Arial</option>
+          <option value="Verdana">Verdana</option>
+          <option value="Courier New">Courier New</option>
+          <option value="Georgia">Georgia</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="diameter-input">Diameter</label>
+        <input type="number" id="diameter-input" value="35" min="0" />
+      </div>
+
+      <div class="form-group">
+        <label for="kerning-input">Kerning</label>
+        <input type="number" id="kerning-input" value="20" min="0" />
+      </div>
+
+      <div class="form-group">
+        <label for="start-angle-input">Start Angle</label>
+        <input
+          type="number"
+          id="start-angle-input"
+          value="0"
+          min="-180"
+          max="180"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="flipped-input">Flipped</label>
+        <input type="checkbox" id="flipped-input" />
+      </div>
+
+      <div class="form-group">
+        <label>&nbsp;</label>
+        <button id="update-text">Update Text</button>
+      </div>
+    </div>
+
+    <script>
       const canvas = new fabric.Canvas("c");
 
       const curvedText = new fabric.TextCurve("Curved Text!", {
@@ -29,12 +162,53 @@
         flipped: false,
         startAngle: 0,
         editable: true,
-        objectCaching: false, // Add this
-        hasControls: true, // Ensure controls work properly
+        objectCaching: false,
+        hasControls: true,
+        originX: "center",
+        originY: "center",
       });
 
       canvas.add(curvedText);
       canvas.setActiveObject(curvedText);
+
+      function updateCurvedText() {
+        const textInput = document.getElementById("text-input").value;
+        const fillInput = document.getElementById("fill-input").value;
+        const fontSizeInput = parseInt(
+          document.getElementById("font-size-input").value
+        );
+        const fontFamilyInput =
+          document.getElementById("font-family-input").value;
+        const diameterInput = parseInt(
+          document.getElementById("diameter-input").value
+        );
+        const kerningInput = parseInt(
+          document.getElementById("kerning-input").value
+        );
+        const startAngleInput = parseInt(
+          document.getElementById("start-angle-input").value
+        );
+        const flippedInput = document.getElementById("flipped-input").checked;
+
+        curvedText.set({
+          text: textInput,
+          fill: fillInput,
+          fontSize: fontSizeInput,
+          fontFamily: fontFamilyInput,
+          diameter: diameterInput,
+          kerning: kerningInput,
+          startAngle: startAngleInput,
+          flipped: flippedInput,
+        });
+
+        curvedText._updateCurve();
+
+        canvas.renderAll();
+      }
+
+      document
+        .getElementById("update-text")
+        .addEventListener("click", updateCurvedText);
     </script>
   </body>
 </html>
