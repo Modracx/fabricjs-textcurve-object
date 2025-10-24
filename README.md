@@ -25,7 +25,7 @@ While editing, the text behaves like a normal straight-line `IText` object. Duri
 | Property     | Default   | Description                                                                 |
 |--------------|-----------|-----------------------------------------------------------------------------|
 | `diameter`   | `0`       | Diameter of the circular arc the text follows                               |
-| `startAngle` | `180`     | Starting angle (in degrees) for text along the arc                          |
+| `startAngle` | `0`     | Starting angle (in degrees) for text along the arc                          |
 | `kerning`    | `0`       | Extra spacing between characters                                            |
 | `flipped`    | `false`   | If `true`, text curves inward (inside circle); otherwise, it curves outward |
 
