@@ -10,7 +10,7 @@
         diameter: 0,
         kerning: 0,
         flipped: false,
-        startAngle: 180,
+        startAngle: 0,
 
         cacheProperties: fabric.IText.prototype.cacheProperties.concat([
             "diameter",
@@ -24,7 +24,7 @@
             this.diameter = options.diameter ?? 0;
             this.kerning = options.kerning ?? 0;
             this.flipped = options.flipped ?? false;
-            this.startAngle = options.startAngle ?? 180;
+            this.startAngle = options.startAngle ?? 0;
 
             this.originX = options.originX ?? "left";
             this.originY = options.originY ?? "top";
@@ -131,7 +131,8 @@
             ctx.textBaseline = "middle";
 
             ctx.translate(cEl.width / 2, cEl.height / 2);
-            ctx.rotate(-arc / 2);
+            const angleOffset = this.startAngle - (arc * 180) / Math.PI / 2;
+            ctx.rotate((angleOffset * Math.PI) / 180);
 
             const angle = arc / text.length;
 

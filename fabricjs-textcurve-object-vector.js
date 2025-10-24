@@ -10,7 +10,7 @@
         diameter: 0,
         kerning: 0,
         flipped: false,
-        startAngle: 180,
+        startAngle: 0,
 
         cacheProperties: fabric.IText.prototype.cacheProperties.concat([
             "diameter",
@@ -24,7 +24,7 @@
             this.diameter = options.diameter ?? 0;
             this.kerning = options.kerning ?? 0;
             this.flipped = options.flipped ?? false;
-            this.startAngle = options.startAngle ?? 180;
+            this.startAngle = options.startAngle ?? 0;
 
             this.originX = options.originX ?? "left";
             this.originY = options.originY ?? "top";
