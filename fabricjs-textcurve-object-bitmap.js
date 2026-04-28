@@ -33,10 +33,18 @@
 
         set: function (key, value) {
             const changed = this.callSuper("set", key, value);
-            if (
-                ["text", "diameter", "fontSize", "kerning"].includes(key) &&
-                !this.isEditing
-            ) {
+            // Bug fixes: added startAngle + flipped (curve params) and all visual
+            // properties — bitmap must be regenerated whenever appearance changes
+            const triggerProps = [
+                "text", "diameter", "fontSize", "kerning", "startAngle", "flipped",
+                "fill", "stroke", "strokeWidth",
+                "fontFamily", "fontStyle", "fontWeight",
+                "underline", "linethrough", "overline",
+            ];
+            const shouldUpdate = typeof key === "object"
+                ? Object.keys(key).some(k => triggerProps.includes(k))
+                : triggerProps.includes(key);
+            if (shouldUpdate && !this.isEditing) {
                 this._updateCurve();
             }
             return changed;
@@ -59,13 +67,15 @@
             const canvasEl = fabric.util.createCanvasElement();
             const ctx = canvasEl.getContext("2d");
             ctx.font = this._getFontDeclaration();
+            // Skip newlines; kerning is a gap between chars so (n-1) gaps
+            const chars = this.text.split("").filter(c => c !== "\n");
             let w = 0;
-            for (let c of this.text) {
-                w += ctx.measureText(c).width + this.kerning;
+            for (let i = 0; i < chars.length; i++) {
+                w += ctx.measureText(chars[i]).width;
+                if (i < chars.length - 1) w += this.kerning;
             }
             w = Math.round(w);
             const h = Math.round(this.fontSize * 1.2);
-
             this.set({ width: w, height: h });
         },
 
@@ -73,9 +83,6 @@
             const rawCanvas = this._createCurvedTextCanvas();
             const trimmed = this._trimCanvas(rawCanvas);
             this._renderedCanvas = trimmed;
-
-            this._offsetX = trimmed._offsetX || 0;
-            this._offsetY = trimmed._offsetY || 0;
 
             this.set({
                 width: trimmed.width,
@@ -93,18 +100,26 @@
             const ctx = cEl.getContext("2d");
             ctx.font = this._getFontDeclaration();
 
-            if (arcF === 0) {
+            // Skip newlines throughout
+            const chars = text.split("").filter(c => c !== "\n");
+            const n = chars.length;
+
+            if (arcF === 0 || n === 0) {
+                // Flat text: kerning is (n-1) gaps, not n
                 let tw = 0;
-                for (let ch of text) tw += ctx.measureText(ch).width + k;
-                const h = fs * 1.2;
-                cEl.width = Math.round(tw);
-                cEl.height = Math.round(h);
+                for (let i = 0; i < n; i++) {
+                    tw += ctx.measureText(chars[i]).width;
+                    if (i < n - 1) tw += k;
+                }
+                cEl.width = Math.round(tw) || 1;
+                cEl.height = Math.round(fs * 1.2) || 1;
                 ctx.font = this._getFontDeclaration();
                 ctx.fillStyle = this.fill;
                 ctx.textAlign = "left";
                 ctx.textBaseline = "top";
-                for (let i = 0, x = 0; i < text.length; i++) {
-                    const ch = text[i];
+                let x = 0;
+                for (let i = 0; i < n; i++) {
+                    const ch = chars[i];
                     const wch = ctx.measureText(ch).width;
                     if (this.stroke && this.strokeWidth > 0) {
                         ctx.strokeStyle = this.stroke;
@@ -112,34 +127,48 @@
                         ctx.strokeText(ch, x, 0);
                     }
                     ctx.fillText(ch, x, 0);
-                    x += wch + k;
+                    x += wch + (i < n - 1 ? k : 0);
                 }
                 return cEl;
             }
 
-            let totalW = 0;
-            for (let ch of text) totalW += ctx.measureText(ch).width + k;
+            // Measure chars; kerning is (n-1) gaps
+            const charWidths = chars.map(ch => ctx.measureText(ch).width);
+            let totalW = charWidths.reduce((sum, w) => sum + w, 0);
+            if (n > 1) totalW += k * (n - 1);
 
             const arc = (Math.max(-100, Math.min(100, arcF)) / 100) * 2 * Math.PI;
-            const radius = totalW / Math.abs(arc) || fs * 2;
+            const radius = Math.abs(totalW / arc) || fs * 2;
 
-            cEl.width = Math.round(radius * 4);
-            cEl.height = Math.round(radius * 4);
+            // Canvas large enough to contain the full arc including glyph height
+            const size = Math.round(2 * (radius + fs));
+            cEl.width = size;
+            cEl.height = size;
             ctx.font = this._getFontDeclaration();
             ctx.fillStyle = this.fill;
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
 
-            ctx.translate(cEl.width / 2, cEl.height / 2);
-            const angleOffset = this.startAngle - (arc * 180) / Math.PI / 2;
-            ctx.rotate((angleOffset * Math.PI) / 180);
+            // dir = +1 → top arc (normal), dir = -1 → bottom arc (flipped).
+            // Reversing direction keeps the first char at the same visual start position.
+            // No extra rotate(π) — char tops naturally face the circle centre on both arcs.
+            const dir = flipped ? -1 : 1;
 
-            const angle = arc / text.length;
+            // Per-character angles proportional to actual glyph width
+            const charAngles = charWidths.map((w, i) => {
+                const wWithGap = w + (i < n - 1 ? k : 0);
+                return (wWithGap / totalW) * arc;
+            });
 
-            for (let ch of text) {
+            ctx.translate(size / 2, size / 2);
+            ctx.rotate((this.startAngle * Math.PI) / 180 - dir * arc / 2);
+
+            for (let i = 0; i < n; i++) {
+                const ch = chars[i];
+                const angle = charAngles[i];
                 ctx.save();
-                ctx.rotate(angle / 2);
-                ctx.translate(0, -radius * (flipped ? -1 : 1));
+                ctx.rotate(dir * angle / 2);
+                ctx.translate(0, -dir * radius);
                 if (this.stroke && this.strokeWidth > 0) {
                     ctx.strokeStyle = this.stroke;
                     ctx.lineWidth = this.strokeWidth;
@@ -147,7 +176,7 @@
                 }
                 ctx.fillText(ch, 0, 0);
                 ctx.restore();
-                ctx.rotate(angle);
+                ctx.rotate(dir * angle);
             }
 
             return cEl;
@@ -159,11 +188,7 @@
             const h = canvas.height;
             const data = ctx.getImageData(0, 0, w, h).data;
 
-            let minX = w,
-                minY = h,
-                maxX = 0,
-                maxY = 0,
-                found = false;
+            let minX = w, minY = h, maxX = 0, maxY = 0, found = false;
 
             for (let y = 0; y < h; y++) {
                 for (let x = 0; x < w; x++) {
@@ -187,16 +212,11 @@
             trimmed.width = trimmedW;
             trimmed.height = trimmedH;
 
-            trimmed
-                .getContext("2d")
-                .putImageData(
-                    ctx.getImageData(minX, minY, trimmedW, trimmedH),
-                    0,
-                    0
-                );
-
-            trimmed._offsetX = minX;
-            trimmed._offsetY = minY;
+            trimmed.getContext("2d").putImageData(
+                ctx.getImageData(minX, minY, trimmedW, trimmedH),
+                0,
+                0
+            );
 
             return trimmed;
         },
@@ -204,12 +224,11 @@
         _render: function (ctx) {
             if (this.isEditing) {
                 this.callSuper("_render", ctx);
-            } else {
-                const c = this._renderedCanvas;
-                const offsetX = this._offsetX || 0;
-                const offsetY = this._offsetY || 0;
-                ctx.drawImage(c, -this.width / 2, -this.height / 2);
+                return;
             }
+            const c = this._renderedCanvas;
+            if (!c) return; // guard: bitmap not yet initialised
+            ctx.drawImage(c, -this.width / 2, -this.height / 2);
         },
 
         toObject: function (props = []) {
